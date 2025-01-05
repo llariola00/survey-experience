@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.typing-question {
+    white-space: pre-wrap;
+    border-right: 2px solid #666;
+    animation: typing 2s steps(40, end),
+               blink-caret 0.75s step-end infinite;
+    position: relative;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink-caret {
+    from,
+    to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: #666;
+    }
+}
+
+@keyframes glitch {
+    0% {
+        transform: skewX(0deg);
+        clip-path: none;
+    }
+    20% {
+        transform: skewX(-15deg);
+        clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 85%);
+        text-shadow: 2px 0 #ff0000, -2px 0 #00ff00;
+    }
+    21% {
+        transform: skewX(0deg);
+        clip-path: none;
+        text-shadow: none;
+    }
+    45% {
+        transform: skewX(10deg);
+        clip-path: polygon(0 0, 100% 15%, 100% 85%, 0 100%);
+        text-shadow: -2px 0 #ff0000, 2px 0 #00ff00;
+    }
+    46% {
+        transform: skewX(0deg);
+        clip-path: none;
+        text-shadow: none;
+    }
+    100% {
+        transform: skewX(0deg);
+        clip-path: none;
+        text-shadow: none;
+    }
+}
+
+.glitch-text {
+    animation: typing 2s steps(40, end),
+               blink-caret 0.75s step-end infinite,
+               glitch 0.3s infinite !important;
+}
+
+.glitch-text::before {
+    content: attr(data-text);
+    position: absolute;
+    left: -2px;
+    text-shadow: 1px 0 #ff0000;
+    top: 0;
+    color: #fff;
+    background: #111827;
+    overflow: hidden;
+    animation: noise-1 3s linear infinite alternate-reverse;
+}
+
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 2px;
+    text-shadow: -1px 0 #00ff00;
+    top: 0;
+    color: #fff;
+    background: #111827;
+    overflow: hidden;
+    animation: noise-2 5s linear infinite alternate-reverse;
+}
+
+@keyframes noise-1 {
+    0%, 20%, 40%, 60%, 70%, 90% {
+        clip-path: inset(50% 0 50% 0);
+    }
+    10%, 30%, 50%, 80%, 100% {
+        clip-path: inset(0 50% 0 50%);
+    }
+}
+
+@keyframes noise-2 {
+    0%, 20%, 40%, 60%, 70%, 90% {
+        clip-path: inset(0 50% 0 50%);
+    }
+    10%, 30%, 50%, 80%, 100% {
+        clip-path: inset(50% 0 50% 0);
+    }
+}
+
+.ending-phase {
+    animation: blankAndFlash 4s steps(1, end);
+}
+
+@keyframes blankAndFlash {
+    0%, 50% {
+        background: #111827;
+    }
+    50.1%, 51.3% {
+        background: black;
+    }
+    51.4%, 53.7% {
+        background: #111827;
+    }
+    53.8%, 54.2% {
+        background: black;
+    }
+    54.3%, 57.8% {
+        background: #111827;
+    }
+    57.9%, 58.1% {
+        background: black;
+    }
+    58.2%, 58.9% {
+        background: #111827;
+    }
+    59%, 59.8% {
+        background: black;
+    }
+    59.9%, 61.2% {
+        background: #111827;
+    }
+    61.3%, 61.4% {
+        background: black;
+    }
+    61.5%, 100% {
+        background: black;
+    }
+}
+
+.glitch-active {
+    animation: randomFlash 10s steps(1, end) infinite;
+}
+
+@keyframes randomFlash {
+    0%, 98%, 98.2%, 98.4%, 98.6%, 98.8%, 99%, 99.2%, 99.4%, 99.6%, 99.8% {
+        background: #111827;
+    }
+    97.9%, 98.1%, 98.3%, 98.5%, 98.7%, 98.9%, 99.1%, 99.3%, 99.5%, 99.7%, 99.9% {
+        background: black;
+    }
+}
+
+/* Add random timing variations */
+.glitch-active {
+    animation-delay: var(--random-delay);
+    animation-duration: var(--random-duration);
+}
+
+/* Option glitch effect */
+.option-glitch {
+    position: relative;
+    overflow: hidden;
+}
+
+.option-glitch:hover {
+    animation: optionGlitch 0.3s infinite;
+}
+
+.option-glitch:hover::before,
+.option-glitch:hover::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: inherit;
+    background: inherit;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.option-glitch:hover::before {
+    left: 2px;
+    text-shadow: -2px 0 #ff0000;
+    animation: noise-1 2s infinite linear alternate-reverse;
+}
+
+.option-glitch:hover::after {
+    left: -2px;
+    text-shadow: 2px 0 #00ff00;
+    animation: noise-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes optionGlitch {
+    0% {
+        transform: translate(0);
+    }
+    20% {
+        transform: translate(-2px, 2px);
+    }
+    40% {
+        transform: translate(-2px, -2px);
+    }
+    60% {
+        transform: translate(2px, 2px);
+    }
+    80% {
+        transform: translate(2px, -2px);
+    }
+    100% {
+        transform: translate(0);
+    }
+}
+
+/* Add random glitch timing for options */
+.option-glitch:hover {
+    animation-delay: var(--option-delay);
+    animation-duration: var(--option-duration);
+}
