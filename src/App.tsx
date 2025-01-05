@@ -18,7 +18,7 @@ function App() {
             const hour = now.getHours();
             
             // Allow access between 7 PM (19) and 5 AM (5)
-            const isAllowedTime = hour >= 19 || hour < 6;
+            const isAllowedTime = hour >= 19 || hour < 5;
             
             // Check if user has completed the survey
             const hasCompleted = localStorage.getItem('surveyCompleted');
@@ -114,11 +114,6 @@ function App() {
         setPhase("Survey");
     };
 
-    const handleSkipToEnd = () => {
-        setCurrentQuestion(questions.length);
-        setPhase("Ending");
-    };
-
     const progress = (currentQuestion / questions.length) * 100;
 
     const containerClass = `min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center ${
@@ -155,12 +150,6 @@ function App() {
                 )}
             </div>
             {(phase === "Survey" || phase === "PersonalInfo") && <ProgressBar progress={progress} />}
-            <button
-                className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded"
-                onClick={handleSkipToEnd}
-            >
-                Skip to End
-            </button>
         </div>
     );
 }
