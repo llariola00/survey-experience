@@ -4,23 +4,29 @@ import { ProgressBar } from "./components/ProgressBar";
 import { Introduction } from "./components/Introduction";
 import { Ending } from "./components/Ending";
 import { PersonalInfo } from "./components/PersonalInfo";
-import { questions } from "./data/questions";
+import { questions, questionsV2 } from "./data/questions";
 
 function App() {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState<string[]>([]);
     const [phase, setPhase] = useState<"Introduction" | "PersonalInfo" | "Survey" | "Ending">("Introduction");
     const [hasCompletedOnce, setHasCompletedOnce] = useState(false);
+    const [audio] = useState(new Audio('/ambient.mp3'));
+
+    const currentQuestions = hasCompletedOnce ? questionsV2 : questions;
+
+    // FOR TESTING
+    // const handleSkipToEnd = () => {
+    //     setCurrentQuestion(questions.length);
+    //     setPhase("Ending");
+    // };
 
     useEffect(() => {
+        // Time access check effect
         const checkTimeAccess = () => {
             const now = new Date();
             const hour = now.getHours();
-            
-            // Allow access between 7 PM (19) and 5 AM (5)
-            const isAllowedTime = hour >= 19 || hour < 5;
-            
-            // Check if user has completed the survey
+            const isAllowedTime = hour >= 19 || hour < 5; // 7 PM - 5 AM
             const hasCompleted = localStorage.getItem('surveyCompleted');
             
             if (hasCompleted === 'true' && !isAllowedTime) {
@@ -45,50 +51,67 @@ function App() {
             return true;
         };
 
-        // Check immediately on load
         const canAccess = checkTimeAccess();
-        if (!canAccess) {
-            return;
+        if (!canAccess) return;
+
+        const timeCheckInterval = setInterval(checkTimeAccess, 60000);
+
+        // Random timing effect for container
+        let randomTimingInterval: ReturnType<typeof setInterval>;
+        if (hasCompletedOnce) {
+            const container = document.getElementById('container');
+            if (container) {
+                const updateRandomTiming = () => {
+                    const delay = Math.random() * 15;
+                    const duration = 5 + Math.random() * 10;
+                    container.style.setProperty('--random-delay', `-${delay}s`);
+                    container.style.setProperty('--random-duration', `${duration}s`);
+                };
+
+                updateRandomTiming();
+                randomTimingInterval = setInterval(updateRandomTiming, 5000);
+            }
         }
 
-        // Check every minute for time changes
-        const interval = setInterval(checkTimeAccess, 60000);
-        return () => clearInterval(interval);
-    }, []);
-
-    useEffect(() => {
-        const container = document.getElementById('container');
-        if (container && hasCompletedOnce) {
-            const updateRandomTiming = () => {
-                const delay = Math.random() * 15; // Random delay between 0-15 seconds
-                const duration = 5 + Math.random() * 10; // Random duration between 5-15 seconds
-                container.style.setProperty('--random-delay', `-${delay}s`);
-                container.style.setProperty('--random-duration', `${duration}s`);
-            };
-
-            updateRandomTiming();
-            const interval = setInterval(updateRandomTiming, 5000); // Update timing every 5 seconds
-
-            return () => clearInterval(interval);
-        }
-    }, [hasCompletedOnce]);
-
-    useEffect(() => {
+        // Option glitch timing effect
+        let optionTimingInterval: ReturnType<typeof setInterval>;
         if (hasCompletedOnce) {
             const updateOptionTiming = () => {
                 const options = document.querySelectorAll('.option-glitch');
                 options.forEach(option => {
-                    const delay = Math.random() * 4; // Random delay between 0-4s
-                    const duration = 0.2 + Math.random() * 0.3; // Random duration between 0.2-0.5s
+                    const delay = Math.random() * 4;
+                    const duration = 0.2 + Math.random() * 0.3;
                     (option as HTMLElement).style.setProperty('--option-delay', `${delay}s`);
                     (option as HTMLElement).style.setProperty('--option-duration', `${duration}s`);
                 });
             };
 
-            const interval = setInterval(updateOptionTiming, 1000); // Update timing every second
-            return () => clearInterval(interval);
+            optionTimingInterval = setInterval(updateOptionTiming, 1000);
         }
-    }, [hasCompletedOnce]);
+
+        // Audio setup effect
+        audio.loop = true;
+        audio.volume = 0.8;
+
+        const playAudio = () => {
+            audio.play().catch(error => {
+                console.log("Autoplay prevented:", error);
+            });
+            document.removeEventListener('click', playAudio);
+        };
+
+        document.addEventListener('click', playAudio);
+
+        // Cleanup
+        return () => {
+            clearInterval(timeCheckInterval);
+            if (randomTimingInterval) clearInterval(randomTimingInterval);
+            if (optionTimingInterval) clearInterval(optionTimingInterval);
+            audio.pause();
+            audio.currentTime = 0;
+            document.removeEventListener('click', playAudio);
+        };
+    }, [hasCompletedOnce, audio]);
 
     const handleAnswer = (answer: string) => {
         setAnswers([...answers, answer]);
@@ -118,7 +141,8 @@ function App() {
 
     const containerClass = `min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center ${
         phase === "Ending" ? "ending-phase" : ""
-    } ${hasCompletedOnce ? "glitch-active" : ""}`;
+    } ${hasCompletedOnce ? "glitch-active" : 
+       (phase === "Survey" && questions[currentQuestion]?.act === 4) ? "glitch-active" : ""}`;
 
     return (
         <div
@@ -135,9 +159,9 @@ function App() {
                         hasCompletedOnce={hasCompletedOnce}
                     />
                 )}
-                {phase === "Survey" && currentQuestion < questions.length && (
+                {phase === "Survey" && currentQuestion < currentQuestions.length && (
                     <Question
-                        question={questions[currentQuestion]}
+                        question={currentQuestions[currentQuestion]}
                         onAnswer={handleAnswer}
                         hasCompletedOnce={hasCompletedOnce}
                     />
@@ -149,6 +173,13 @@ function App() {
                     />
                 )}
             </div>
+            {/* <button
+                className="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded"
+                onClick={handleSkipToEnd}
+            >
+                Skip to End
+            </button> */}
+
             {(phase === "Survey" || phase === "PersonalInfo") && <ProgressBar progress={progress} />}
         </div>
     );

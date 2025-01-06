@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Question as QuestionType } from "../data/questions";
+import { useClickSound } from '../hooks/useClickSound';
 
 interface QuestionProps {
     question: QuestionType;
@@ -9,20 +10,49 @@ interface QuestionProps {
 
 export function Question({ question, onAnswer, hasCompletedOnce }: QuestionProps) {
     const [show, setShow] = useState(false);
+    const [disabledOptions, setDisabledOptions] = useState<boolean[]>([]);
     const questionRef = useRef<HTMLHeadingElement>(null);
+    const playClick = useClickSound();
 
     useEffect(() => {
         setShow(false);
         const timer = setTimeout(() => setShow(true), 50);
 
+        // Generate random disabled states for options when hasCompletedOnce
+        if (hasCompletedOnce) {
+            const numOptions = question.options.length;
+            const randomDisabled = question.options.map((_, index) => {
+                // Ensure at least one option is always enabled
+                if (index === Math.floor(Math.random() * numOptions)) return false;
+                return Math.random() > 0.5;
+            });
+            setDisabledOptions(randomDisabled);
+        } else {
+            setDisabledOptions([]);
+        }
+
         if (questionRef.current) {
             questionRef.current.classList.remove("typing-question");
-            void questionRef.current.offsetWidth; // Trigger reflow
+            void questionRef.current.offsetWidth;
             questionRef.current.classList.add("typing-question");
         }
 
         return () => clearTimeout(timer);
-    }, [question.id]);
+    }, [question.id, hasCompletedOnce]);
+
+    const handleOptionClick = (option: string, disabled: boolean) => {
+        if (!disabled) {
+            playClick();
+            onAnswer(option);
+        }
+    };
+
+    const getGlitchClass = (isDisabled: boolean) => {
+        if (isDisabled) return '';
+        if (hasCompletedOnce) return 'option-glitch';
+        if (question.act === 4) return 'option-glitch-mild';
+        return '';
+    };
 
     return (
         <div className={`space-y-4 ${show ? "fade-in" : "opacity-0"}`}>
@@ -38,12 +68,15 @@ export function Question({ question, onAnswer, hasCompletedOnce }: QuestionProps
                 {question.options.map((option, index) => (
                     <button
                         key={index}
-                        onClick={() => onAnswer(option)}
-                        className={`p-3 text-left bg-gray-800 hover:bg-gray-700 text-gray-300 
-                            rounded transition-all duration-300 hover:translate-x-1
-                            border border-gray-700 hover:border-gray-500
-                            ${hasCompletedOnce ? 'option-glitch' : ''}`}
+                        onClick={() => handleOptionClick(option, disabledOptions[index])}
+                        className={`p-3 text-left bg-gray-800 text-gray-300 
+                            rounded transition-all duration-300
+                            border border-gray-700
+                            ${!disabledOptions[index] ? 'hover:bg-gray-700 hover:translate-x-1 hover:border-gray-500' : ''}
+                            ${getGlitchClass(disabledOptions[index])}
+                            ${disabledOptions[index] ? 'opacity-50 cursor-not-allowed' : ''}`}
                         data-text={option}
+                        disabled={disabledOptions[index]}
                     >
                         {option}
                     </button>

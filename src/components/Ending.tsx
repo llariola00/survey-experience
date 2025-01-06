@@ -32,17 +32,33 @@ export const Ending: React.FC<EndingProps> = ({ onRestart, hasCompletedOnce }) =
             }, 4000);
 
             const messageTimer = setTimeout(() => {
-                setMessage("WAKE UP, REMEMBER WHO YOU ARE!");
-            }, 6000);
+                setPhase('message');
+                setMessage(". . . . . .");
+            }, 7000);
+
+            const message2Timer = setTimeout(() => {
+                setMessage("WAKE UP, WAKE UP, REMEMBER WHO YOU ARE!");
+            }, 9000);
+
+            const message3Timer = setTimeout(() => {
+                setMessage("REMEMBER SPIN 7 TIMES, 7 TIMES!");
+            }, 11000);
+
+            const message4Timer = setTimeout(() => {
+                setMessage("REMEMBER WELL YOUR ANSWERS. . .");
+            }, 13000);
 
             const finalTimer = setTimeout(() => {
                 onRestart();
-            }, 8000);
+            }, 15000);
 
             return () => {
                 clearTimeout(blankTimer);
                 clearTimeout(flashTimer);
                 clearTimeout(messageTimer);
+                clearTimeout(message2Timer);
+                clearTimeout(message3Timer);
+                clearTimeout(message4Timer);
                 clearTimeout(finalTimer);
             };
         } else {
