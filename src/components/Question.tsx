@@ -18,18 +18,9 @@ export function Question({ question, onAnswer, hasCompletedOnce }: QuestionProps
         setShow(false);
         const timer = setTimeout(() => setShow(true), 50);
 
-        // Generate random disabled states for options when hasCompletedOnce
-        if (hasCompletedOnce) {
-            const numOptions = question.options.length;
-            const randomDisabled = Array(numOptions).fill(false).map(() => Math.random() > 0.5);
-            
-            // If all options are disabled, enable a random one
-            if (randomDisabled.every(disabled => disabled)) {
-                const randomIndex = Math.floor(Math.random() * numOptions);
-                randomDisabled[randomIndex] = false;
-            }
-            
-            setDisabledOptions(randomDisabled);
+        // Set disabled options based on question configuration
+        if (hasCompletedOnce && question.disabledOptions) {
+            setDisabledOptions(question.disabledOptions);
         } else {
             setDisabledOptions([]);
         }
