@@ -18,7 +18,7 @@ export const act1v2Questions: Question[] = [
     id: 2,
     text: "How many friends do you have?",
     options: ["None", "None", "None", "I DO HAVE FRIENDS"],
-    disabledOptions: [true, true, true, false],
+    disabledOptions: [false, false, false, true],
     act: 1
   },
   {

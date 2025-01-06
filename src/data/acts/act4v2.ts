@@ -27,7 +27,7 @@ export const act4v2Questions: Question[] = [
     act: 4,
     text: "If someone was listening to this conversation, would you change your answers?",
     options: ["We're all listening", "We're all listening", "We always have been", "Keep talking"],
-    disabledOptions: [false, false, false, true]
+    disabledOptions: [false, false, false, false]
   },
   {
     id: 23,
