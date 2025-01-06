@@ -21,11 +21,14 @@ export function Question({ question, onAnswer, hasCompletedOnce }: QuestionProps
         // Generate random disabled states for options when hasCompletedOnce
         if (hasCompletedOnce) {
             const numOptions = question.options.length;
-            const randomDisabled = question.options.map((_, index) => {
-                // Ensure at least one option is always enabled
-                if (index === Math.floor(Math.random() * numOptions)) return false;
-                return Math.random() > 0.5;
-            });
+            const randomDisabled = Array(numOptions).fill(false).map(() => Math.random() > 0.5);
+            
+            // If all options are disabled, enable a random one
+            if (randomDisabled.every(disabled => disabled)) {
+                const randomIndex = Math.floor(Math.random() * numOptions);
+                randomDisabled[randomIndex] = false;
+            }
+            
             setDisabledOptions(randomDisabled);
         } else {
             setDisabledOptions([]);
